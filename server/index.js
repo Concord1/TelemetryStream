@@ -6,7 +6,7 @@ const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html' });
 
   const templatePath = 'template.ejs';
-  const getter = process.env.SEND_TO_DYNAMODB_API
+  const sender = process.env.SEND_TO_DYNAMODB_API
   fs.readFile(templatePath, 'utf8', (err, template) => {
     if (err) {
       console.error(err);
