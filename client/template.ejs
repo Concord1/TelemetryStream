@@ -80,7 +80,7 @@
         }
     </style>
     <script>
-
+        console.log(getter)
         var intervalId; // Variable to store the interval ID
 
         // Function to start the interval and make API calls
@@ -118,7 +118,7 @@
                 body: raw,
                 redirect: 'follow'
             };
-            console.log(getter)
+            
             // make API call with parameters and use promises to get response
             fetch(<%= getter %>, requestOptions)
                 .then(response => response.text())
