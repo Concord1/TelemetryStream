@@ -7,13 +7,13 @@ const server = http.createServer((req, res) => {
 
   const templatePath = 'template.ejs';
   const name = 'John'; // Replace with the desired value
-  const sender = process.env.GET_FROM_DYNAMODB_API
+  const getter = process.env.GET_FROM_DYNAMODB_API
   fs.readFile(templatePath, 'utf8', (err, template) => {
     if (err) {
       console.error(err);
       res.end('<h1>Error reading template file</h1>');
     } else {
-      const renderedHtml = ejs.render(template, { sender });
+      const renderedHtml = ejs.render(template, { getter });
       res.end(renderedHtml);
     }
   });
