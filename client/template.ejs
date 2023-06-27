@@ -120,7 +120,7 @@
             };
 
             // make API call with parameters and use promises to get response
-            fetch(<%= sender %>, requestOptions)
+            fetch(<%= getter %>, requestOptions)
                 .then(response => response.text())
                 .then(result => {
                     var checkErr = JSON.parse(result)
