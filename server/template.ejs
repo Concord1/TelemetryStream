@@ -1,12 +1,10 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="UTF-8">
-    <title>Telemetry Readout</title>
-    <!-- Styling for the client UI -->
-    <style>
-        .card {
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Accelerometer Demo</title>
+        <style>
+            .card {
             padding: 10px;
             background-color: rgb(133, 130, 130);
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -78,104 +76,110 @@
         #result {
             color: #FFFFFF;
         }
-    </style>
-    <script>
+         </style>
+         <script>
+            // todo connect with dynamo to see if the generated code already exists in the db
+            function generateCode(){
+                const codeDisplay = document.getElementById('uniqueCode');
+                let code = localStorage.getItem('deviceCode');
+                if (!code) {
+                    // Generate a new code if it doesn't exist in local storage
+                    let x = Math.floor((Math.random() * 100) + 1);
+                    return x;
+                }
 
-        var intervalId; // Variable to store the interval ID
+                codeDisplay.textContent = `Code: ${code}`;
+                return code;
 
-        // Function to start the interval and make API calls
-        function startInterval(code) {
-            // Call the API immediately
-            callAPI(code);
-            // Start the interval
-            intervalId = setInterval(() => {
-                callAPI(code);
-            }, 800); // Set the interval time in milliseconds
+            }
 
-        };
-
-        // Function to stop the interval
-        async function stopInterval() {
-            clearInterval(intervalId);
-            await new Promise(r => setTimeout(r, 100));
-            document.getElementById('result').textContent = "Type in your designated code and press start!"
-        };
-
-
-        // callAPI function that takes the code and exponent numbers as parameters
-        function callAPI(code) {
-            // instantiate a headers object
-            code = code.trim()
-            var myHeaders = new Headers();
-            // add content type header to object
-            myHeaders.append("Content-Type", "application/json");
-            // using built in JSON utility package turn object to string and store in a variable
-            var raw = JSON.stringify(code);
-            // create a JSON object with parameters for API call and store in a variable
-            var requestOptions = {
-                method: 'POST',
-                headers: myHeaders,
-                body: raw,
-                redirect: 'follow'
-            };
-
-            // make API call with parameters and use promises to get response
-            fetch(<%= getter %>, requestOptions)
-                .then(response => response.text())
-                .then(result => {
-                    var checkErr = JSON.parse(result)
-                    console.log(checkErr.statusCode == 200)
-                    if (checkErr.statusCode == 200) {
-                        accelerationData = JSON.parse(result).body;
-                        console.log(accelerationData);
-                        document.getElementById('result').textContent = ``;
-
-                        var xElement = document.getElementById("x");
-                        var yElement = document.getElementById("y");
-                        var zElement = document.getElementById("z");
-
-                        xElement.textContent = "X: " + accelerationData.x;
-                        yElement.textContent = "Y: " + accelerationData.y;
-                        zElement.textContent = "Z: " + accelerationData.z;
-                    }
-                    else {
-                        alert("Please enter a valid code")
-                        stopInterval()
-                    }
-                })
+            async function posttoDynamo(x, y, z, code){
+                var myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+                const data = { "x":x, "y":y, "z":z, "code":code }
+                var raw = JSON.stringify(data);
+                var requestOptions = {
+                    method: 'POST',
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: 'follow'
+                };
+                // make API call with parameters and use promises to get response
+                const res = await fetch(SEND_TO_DYNAMO_API, requestOptions)
                 .catch(error => console.log('error', error));
-        }
-    </script>
-</head>
 
-<body>
+            }
+            var t = true;
+            function stopAccel(){
+                window.removeEventListener('deviceorientation', event)
+                t = false;
+            }
+            function getAccel(){
+                t = true;
+                // Check for mobile user
+                var mobileUser = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                var permis = 'granted';
+                if(mobileUser){
+                    DeviceMotionEvent.requestPermission().then(response => {
+                    permis = response;
+                    });
+                }                                
+                if (permis == 'granted') {
+                    const code = generateCode();
+
+                    let lastApiCallTime = 0;
+                    var x,y,z = 0.00
+                    window.addEventListener('deviceorientation',(event) => {
+                        const currentTime = Date.now();
+                        const timeSinceLastCall = currentTime - lastApiCallTime;
+                        const apiCallDelay = 500; // Delay in milliseconds (twice per second)                      
+                            if(t){
+                            x = event.alpha;
+                            y = event.beta;
+                            z = event.gamma;
+
+                            var xElement = document.getElementById("x");
+                            var yElement = document.getElementById("y");
+                            var zElement = document.getElementById("z");
+
+                            xElement.textContent = "X: " + x.toFixed(2);
+                            yElement.textContent = "Y: " + y.toFixed(2);
+                            zElement.textContent = "Z: " + z.toFixed(2);
+                            }
+
+                            if (timeSinceLastCall >= apiCallDelay && t) {
+                                lastApiCallTime = currentTime;
+                                console.log("OK")
+                                posttoDynamo(x.toFixed(2), y.toFixed(2), z.toFixed(2), code);
+                        }
+                    });
+                    }
+                else{
+                    const codeDisplay = document.getElementById('uniqueCode');
+                    codeDisplay.textContent = 'Unable to access accelerometer.';
+                    console.log("Unable to access accelerometer.")
+                }
+            }
+
+         </script>
+    </head> 
     <center>
-        <h1>Get your telemetry here.</h1>
+        <h1>Send telemetry here.</h1>
     </center>
     <hr>
-    <center>
-        <p id="result">Type in your designated code and press start!</p>
-    </center>
-    
+    <br>
+    <br>      
         <div class="card">
-            <center><h2>Gyroscope Downlink</h2></center>
+            <h2>Gyroscope Values</h2>
             <p id="x">X: </p>
             <p id="y">Y: </p>
             <p id="z">Z: </p>
         </div>
-    
-    <br>
-    <br>
-    <center>
-        <form>
-            <label>Code:</label>
-            <input type="text" id="code">
-            <!-- set button onClick method to call function we defined passing input values as parameters -->
-            <button type="button" onclick="startInterval(document.getElementById('code').value)">START</button>
-            <button type="button" onclick="stopInterval();">STOP</button>
-        </form>
-    </center>
-
-</body>
-
+        <center>
+            <p id="uniqueCode">Code: Press start to create code.</p>
+            <button type="button" onclick="getAccel()">START</button>
+            <button type="button" onclick="stopAccel()">STOP</button>
+        </center>
+        
+    </body>
 </html>
