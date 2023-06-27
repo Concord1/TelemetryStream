@@ -5,7 +5,7 @@ const ejs = require('ejs');
 const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html' });
 
-  const templatePath = 'template.ejs';
+  const templatePath = 'client/template.ejs';
   const name = 'John'; // Replace with the desired value
   const sender = process.env.SEND_TO_DYNAMODB_API
   fs.readFile(templatePath, 'utf8', (err, template) => {
