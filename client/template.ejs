@@ -118,7 +118,7 @@
                 body: raw,
                 redirect: 'follow'
             };
-
+            console.log(getter)
             // make API call with parameters and use promises to get response
             fetch(<%= getter %>, requestOptions)
                 .then(response => response.text())
