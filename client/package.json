@@ -1,7 +1,7 @@
 {
-  "name": "telemetry-tool-server",
+  "name": "telemetry-tool-client",
   "version": "1.0.0",
-  "description": "This is the server side of the telemetry tool. It will provide the user with a unique code.",
+  "description": "This is the client side of the telemetry tool. The user can use it to connect to a running server.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
