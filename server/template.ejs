@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Telemetry Readout</title>
+    <!-- Styling for the client UI -->
+    <style>
+        .card {
+            padding: 10px;
+            background-color: rgb(133, 130, 130);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 300px;
+            margin: auto;
+            display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+        .card h2,
+    .card p {
+        color: #FFFFFF;
+        font-family: system-ui;
+        text-align: center;
+        margin: 5px 0;
+    }
+
+        h1 {
+            color: #FFFFFF;
+            font-family: system-ui;
+            margin-left: 20px;
+        }
+
+        h2 {
+            color: #FFFFFF;
+            font-family: system-ui;
+            margin-left: 20px;
+        }
+
+        p {
+            color: #FFFFFF;
+            font-family: system-ui;
+            margin-left: 20px;
+        }
+
+        body {
+            background-color: #222629;
+        }
+
+        label {
+            color: #86C232;
+            font-family: system-ui;
+            font-size: 20px;
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #86C232;
+            border-color: #86C232;
+            color: #FFFFFF;
+            font-family: system-ui;
+            font-size: 20px;
+            font-weight: bold;
+            margin-left: 30px;
+            margin-top: 20px;
+            width: 140px;
+        }
+
+        input {
+            color: #222629;
+            font-family: system-ui;
+            font-size: 20px;
+            margin-left: 10px;
+            margin-top: 20px;
+            width: 100px;
+        }
+
+        #result {
+            color: #FFFFFF;
+        }
+    </style>
+    <script>
+
+        var intervalId; // Variable to store the interval ID
+
+        // Function to start the interval and make API calls
+        function startInterval(code) {
+            // Call the API immediately
+            callAPI(code);
+            // Start the interval
+            intervalId = setInterval(() => {
+                callAPI(code);
+            }, 800); // Set the interval time in milliseconds
+
+        };
+
+        // Function to stop the interval
+        async function stopInterval() {
+            clearInterval(intervalId);
+            await new Promise(r => setTimeout(r, 100));
+            document.getElementById('result').textContent = "Type in your designated code and press start!"
+        };
+
+
+        // callAPI function that takes the code and exponent numbers as parameters
+        function callAPI(code) {
+            // instantiate a headers object
+            code = code.trim()
+            var myHeaders = new Headers();
+            // add content type header to object
+            myHeaders.append("Content-Type", "application/json");
+            // using built in JSON utility package turn object to string and store in a variable
+            var raw = JSON.stringify(code);
+            // create a JSON object with parameters for API call and store in a variable
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            // make API call with parameters and use promises to get response
+            fetch(<%= getter %>, requestOptions)
+                .then(response => response.text())
+                .then(result => {
+                    var checkErr = JSON.parse(result)
+                    console.log(checkErr.statusCode == 200)
+                    if (checkErr.statusCode == 200) {
+                        accelerationData = JSON.parse(result).body;
+                        console.log(accelerationData);
+                        document.getElementById('result').textContent = ``;
+
+                        var xElement = document.getElementById("x");
+                        var yElement = document.getElementById("y");
+                        var zElement = document.getElementById("z");
+
+                        xElement.textContent = "X: " + accelerationData.x;
+                        yElement.textContent = "Y: " + accelerationData.y;
+                        zElement.textContent = "Z: " + accelerationData.z;
+                    }
+                    else {
+                        alert("Please enter a valid code")
+                        stopInterval()
+                    }
+                })
+                .catch(error => console.log('error', error));
+        }
+    </script>
+</head>
+
+<body>
+    <center>
+        <h1>Get your telemetry here.</h1>
+    </center>
+    <hr>
+    <center>
+        <p id="result">Type in your designated code and press start!</p>
+    </center>
+    
+        <div class="card">
+            <center><h2>Gyroscope Downlink</h2></center>
+            <p id="x">X: </p>
+            <p id="y">Y: </p>
+            <p id="z">Z: </p>
+        </div>
+    
+    <br>
+    <br>
+    <center>
+        <form>
+            <label>Code:</label>
+            <input type="text" id="code">
+            <!-- set button onClick method to call function we defined passing input values as parameters -->
+            <button type="button" onclick="startInterval(document.getElementById('code').value)">START</button>
+            <button type="button" onclick="stopInterval();">STOP</button>
+        </form>
+    </center>
+
+</body>
+
+</html>
