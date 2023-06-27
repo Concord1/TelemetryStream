@@ -7,7 +7,7 @@ const server = http.createServer((req, res) => {
 
   const templatePath = 'template.ejs';
   const name = 'John'; // Replace with the desired value
-  const sender = process.env.SEND_TO_DYNAMODB_API
+  const sender = process.env.GET_FROM_DYNAMODB_API
   fs.readFile(templatePath, 'utf8', (err, template) => {
     if (err) {
       console.error(err);
