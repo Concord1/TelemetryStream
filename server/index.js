@@ -6,13 +6,13 @@ const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html' });
 
   const templatePath = 'template.ejs';
-  const getter = process.env.GET_FROM_DYNAMODB_API
+  const getter = process.env.SEND_TO_DYNAMODB_API
   fs.readFile(templatePath, 'utf8', (err, template) => {
     if (err) {
       console.error(err);
       res.end('<h1>Error reading template file</h1>');
     } else {
-      const renderedHtml = ejs.render(template, { getter });
+      const renderedHtml = ejs.render(template, { sender });
       res.end(renderedHtml);
     }
   });
