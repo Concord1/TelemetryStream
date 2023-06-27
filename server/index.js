@@ -98,7 +98,7 @@ const server = http.createServer((req, res) => {
                     return x;
                 }
 
-                codeDisplay.textContent = \`Code: ${code}\`;
+                codeDisplay.textContent = "Code: " + code;
                 return code;
 
             }
