@@ -91,16 +91,10 @@ const server = http.createServer((req, res) => {
             // todo connect with dynamo to see if the generated code already exists in the db
             function generateCode(){
                 const codeDisplay = document.getElementById('uniqueCode');
-                let code = localStorage.getItem('deviceCode');
-                if (!code) {
-                    // Generate a new code if it doesn't exist in local storage
-                    let x = Math.floor((Math.random() * 100) + 1);
-                    return x;
-                }
-
+                let x = Math.floor((Math.random() * 100) + 1);
+                let code = x;
                 codeDisplay.textContent = "Code: " + code;
                 return code;
-
             }
 
             async function posttoDynamo(x, y, z, code){
