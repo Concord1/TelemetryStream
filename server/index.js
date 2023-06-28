@@ -109,7 +109,7 @@ const server = http.createServer((req, res) => {
                     redirect: 'follow'
                 };
                 // make API call with parameters and use promises to get response
-                const res = await fetch(sender, requestOptions)
+                const res = await fetch(${sender}, requestOptions)
                 .catch(error => console.log('error', error));
 
             }
