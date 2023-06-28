@@ -23,4 +23,4 @@ const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-This updated code assumes that you have a separate file called template.ejs that contai
+
