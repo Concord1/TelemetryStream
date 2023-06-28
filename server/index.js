@@ -4,7 +4,7 @@ const ejs = require('ejs');
 
 const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/html' });
-  const apikey = sender;
+  const sender = process.env.SEND_TO_DYNAMODB_API;
     const html = `
 
 
